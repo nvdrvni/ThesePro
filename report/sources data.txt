@@ -1,0 +1,11 @@
+• PV : Carrefour
+• Concu : Scraping
+• Depots, Regions : Carrefour
+• Température quotidienne départementale : DataGouv https://www.data.gouv.fr/fr/datasets/temperature-quotidienne-departementale-depuis-janvier-2018/#/resources
+• Communes (population) : DataGouv liste des communes : https://www.data.gouv.fr/fr/datasets/liste-des-communes-insee-coordonnees-habitants/
+• indice CNR : https://www.cnr.fr/espaces/2/indicateurs/26?noContext=1
+• Taux de Change [ExchangeRate.xlsx] : https://www.statista.com/statistics/412794/euro-to-u-s-dollar-annual-average-exchange-rate/
+• Taux de Change [HistoryExchangeRate.csv] : https://www.exchange-rates.org/fr/historique/usd-eur, https://www.investing.com/currencies/usd-eur-historical-data
+• Cours Baril : https://www.insee.fr/fr/statistiques/serie/010002077
+• Nb d'exploitations Agricoles : Observatoire des territoire https://www.observatoire-des-territoires.gouv.fr/nombre-dexploitations-agricoles
+• Nb d'entreprises par secteur : Observatoire des territoire https://www.observatoire-des-territoires.gouv.fr/outils/cartographie-interactive/#bbox=-1053440,6661345,2598781,1619653&c=indicator&f=FZ&i=demo_ent_sect.ent_tot&s=2022&view=map72 
