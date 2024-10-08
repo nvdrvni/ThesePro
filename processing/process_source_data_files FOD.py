@@ -134,16 +134,14 @@ def read_process_indiceCNR_df():
 
 
 def read_process_changeRate_df():
-    df_taux_change = pd.read_csv(
-        "../data/source/USD_EUR Historical Data.csv", usecols=["Date", "Price"]
-    )
-    df_taux_change.rename(
-        columns={"Date": "date", "Price": "rate_USD_to_EUR"},
-        inplace=True,
-    )
+    df_taux_change = pd.read_excel("../data/source/ExchangeRate.xlsx")
 
-    df_taux_change["date"] = df_taux_change["date"].apply(convert_date_ChangeRate)
-    df_taux_change["date"] = pd.to_datetime(df_taux_change["date"])
+    df_taux_change["date"] = pd.to_datetime(df_taux_change["date"], format="%b %d, %Y")
+    # df_taux_change["date"] = df_taux_change["date"].dt.strftime("%Y-%m-%d")
+
+    df_taux_change["EUR_to_USD"] = (1 / df_taux_change["USD_to_EUR"]).apply(
+        lambda x: round(x, 2)
+    )
     return df_taux_change
 
 
@@ -158,14 +156,40 @@ def read_process_temperature_moyenne_df():
         columns={"date_obs": "date", "code_insee_departement": "département"}
     )
 
-    df_temperature["date"] = df_temperature["date"].apply(
-        lambda x: x[-4:] + "-" + x[3:5] + "-" + x[:2]
-    )
+    # df_temperature["date"] = df_temperature["date"].apply(
+    #     lambda x: x[-4:] + "-" + x[3:5] + "-" + x[:2]
+    # )
 
     df_temperature["tmoy"] = df_temperature["tmoy"].astype("float64")
     df_temperature["date"] = pd.to_datetime(df_temperature["date"])
 
     return df_temperature
+
+
+def read_entreprise_secteur_activité():
+    df_entreprises_secteur = pd.read_csv(
+        "../data/source/entreprise_par_secteur_dactivité_par_cp.csv",
+        sep=";",
+        encoding="latin1",
+    )
+    df_entreprises_secteur = df_entreprises_secteur.drop("Libellé", axis=1)
+
+    df_entreprises_secteur.rename(columns={"Code": "code"}, inplace=True)
+
+    for col in df_entreprises_secteur.columns[1:]:
+        df_entreprises_secteur[col] = df_entreprises_secteur[col].astype("float64")
+
+    return df_entreprises_secteur
+
+
+def read_exploitations_agricole():
+    df_exploit_agricole = pd.read_excel("../data/source/agri.xlsx", header=4).drop(
+        ["libgeo", "an"], axis=1
+    )
+    df_exploit_agricole.rename(
+        columns={"exp2020": "nb_exploit_agricole", "codgeo": "code"}, inplace=True
+    )
+    return df_exploit_agricole
 
 
 def read_process_cours_baril_df():
@@ -298,6 +322,8 @@ df_indice_cnr = read_process_indiceCNR_df()
 df_taux_change = read_process_changeRate_df()
 df_temperature_moy = read_process_temperature_moyenne_df()
 df_baril = read_process_cours_baril_df()
+df_entreprises_secteur = read_entreprise_secteur_activité()
+df_exploit_agricole = read_exploitations_agricole()
 
 # ===============================
 # Recup df et fusion
@@ -476,6 +502,15 @@ df_all_prices_filled = df_all_prices_filled.merge(
     df_temperature_moy, on=["date", "département"], how="left"
 )
 
+
+# ===============================
+# Créer une varibale Densité de Population
+# ===============================
+df_all_prices_filled["densité_population"] = np.round(
+    df_all_prices_filled["population"] / df_all_prices_filled["surface"], 2
+)
+
+
 # ===============================
 # Inclure la variable Cours Baril Brent
 # ===============================
@@ -488,10 +523,18 @@ df_all_prices_filled = df_all_prices_filled.merge(
 )
 
 # ===============================
-# Créer une varibale Densité de Population
+# Inclure les données nombres entreprises par secteur d'activité
 # ===============================
-df_all_prices_filled["densité_population"] = np.round(
-    df_all_prices_filled["population"] / df_all_prices_filled["surface"], 2
+df_all_prices_filled = df_all_prices_filled.merge(
+    df_entreprises_secteur, on="code", how="left"
+)
+
+
+# ===============================
+# Inclure les données nombres exploitations agricoles
+# ===============================
+df_all_prices_filled = df_all_prices_filled.merge(
+    df_exploit_agricole, on="code", how="left"
 )
 
 
@@ -514,9 +557,21 @@ df_all_prices_filled = (
             "region du dépôt",
             "site",
             "indice_CNR",
-            "rate_USD_to_EUR",
+            "USD_to_EUR",
+            "EUR_to_USD",
             "cours_baril_en_USD",
             "tmoy",
+            "nb_entreprise_ensemble",
+            "nb_entreprise_industrie",
+            "nb_entreprise_construction",
+            "nb_entreprise_commerce",
+            "nb_entreprise_info_communication",
+            "nb_entreprise_autres_services",
+            "nb_entreprise_sciences_techno",
+            "nb_entreprise_immobilier",
+            "nb_entreprise_finance_assurance",
+            "nb_entreprise_santé_enseign_adminis",
+            "nb_exploit_agricole",
             "prix",
         ]
     ]
@@ -525,6 +580,6 @@ df_all_prices_filled = (
 )
 
 
-# display(df_all_prices_filled)
+display(df_all_prices_filled)
 
-df_all_prices_filled.to_pickle("../data/processed/processed_data_FOD.pkl")
+df_all_prices_filled.to_pickle("../data/processed/processed_data_FOD_07_10.pkl")

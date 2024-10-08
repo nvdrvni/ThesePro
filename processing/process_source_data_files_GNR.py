@@ -84,11 +84,13 @@ def read_process_indiceCNR_df():
 
 def read_process_changeRate_df():
     df_taux_change = pd.read_excel("../data/source/ExchangeRate.xlsx")
-    
-    df_taux_change['date'] = pd.to_datetime(df_taux_change['date'], format='%b %d, %Y')
-    df_taux_change['date'] = df_taux_change['date'].dt.strftime('%Y-%m-%d')
 
-    df_taux_change['EUR_to_USD']=(1/df_taux_change['USD_to_EUR']).apply(lambda x : round(x,2))
+    df_taux_change["date"] = pd.to_datetime(df_taux_change["date"], format="%b %d, %Y")
+    df_taux_change["date"] = df_taux_change["date"].dt.strftime("%Y-%m-%d")
+
+    df_taux_change["EUR_to_USD"] = (1 / df_taux_change["USD_to_EUR"]).apply(
+        lambda x: round(x, 2)
+    )
     return df_taux_change
 
 
@@ -114,13 +116,16 @@ def read_process_temperature_moyenne_df():
 
 def read_entreprise_secteur_activité():
     df_entreprises_secteur = pd.read_csv(
-        "../data/source/entreprise_par_secteur_dactivité_par_cp.csv", sep=";", encoding='latin1')
+        "../data/source/entreprise_par_secteur_dactivité_par_cp.csv",
+        sep=";",
+        encoding="latin1",
+    )
     df_entreprises_secteur = df_entreprises_secteur.drop("Libellé", axis=1)
 
     df_entreprises_secteur.rename(columns={"Code": "code"}, inplace=True)
-    
+
     for col in df_entreprises_secteur.columns[1:]:
-        df_entreprises_secteur[col] = df_entreprises_secteur[col].astype('float64')
+        df_entreprises_secteur[col] = df_entreprises_secteur[col].astype("float64")
 
     return df_entreprises_secteur
 
@@ -505,7 +510,7 @@ df_all_prices_filled = (
             "nb_entreprise_finance_assurance",
             "nb_entreprise_santé_enseign_adminis",
             "nb_exploit_agricole",
-            "prix"
+            "prix",
         ]
     ]
     .sort_values(by=["date", "code"])
@@ -515,4 +520,4 @@ df_all_prices_filled = (
 
 # display(df_all_prices_filled)
 
-df_all_prices_filled.to_pickle("../data/processed/processed_data_GNR.pkl")
+df_all_prices_filled.to_pickle("../data/processed/processed_data_GNR_07_10.pkl")
