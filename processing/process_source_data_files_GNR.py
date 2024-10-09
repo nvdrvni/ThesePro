@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from glob import glob
 
+pd.set_option("display.max_columns", None)
+
 
 def read_process_pv_df():
     df_pv = pd.read_pickle("../data/source/data_pv_gnr.pkl")
@@ -78,6 +80,9 @@ def read_process_indiceCNR_df():
         inplace=True,
     )
 
+    df_indice_cnr["année-mois"] = pd.to_datetime(df_indice_cnr["année-mois"])
+    df_indice_cnr["année-mois"] = df_indice_cnr["année-mois"].dt.to_period("M")
+
     df_indice_cnr.indice_CNR = df_indice_cnr.indice_CNR.astype("float64")
     return df_indice_cnr
 
@@ -86,7 +91,7 @@ def read_process_changeRate_df():
     df_taux_change = pd.read_excel("../data/source/ExchangeRate.xlsx")
 
     df_taux_change["date"] = pd.to_datetime(df_taux_change["date"], format="%b %d, %Y")
-    df_taux_change["date"] = df_taux_change["date"].dt.strftime("%Y-%m-%d")
+    # df_taux_change["date"] = df_taux_change["date"].dt.strftime("%Y-%m-%d")
 
     df_taux_change["EUR_to_USD"] = (1 / df_taux_change["USD_to_EUR"]).apply(
         lambda x: round(x, 2)
@@ -110,6 +115,7 @@ def read_process_temperature_moyenne_df():
     # )
 
     df_temperature["tmoy"] = df_temperature["tmoy"].astype("float64")
+    df_temperature["date"] = pd.to_datetime(df_temperature["date"])
 
     return df_temperature
 
@@ -180,6 +186,8 @@ def read_process_cours_baril_df():
     serie_num.loc[masque] = moyenne[masque]
 
     df_baril["cours_baril_en_USD"] = serie_num
+    df_baril["date"] = pd.to_datetime(df_baril["date"])
+
     return df_baril
 
 
@@ -412,8 +420,8 @@ df_all_prices_filled = df_prices_filled.merge(df_communes, on="code", how="left"
 # ===============================
 # Créer un colonne Année-Mois
 # ===============================
-
-df_all_prices_filled["année-mois"] = df_all_prices_filled["date"].apply(lambda x: x[:7])
+df_all_prices_filled["date"] = pd.to_datetime(df_all_prices_filled["date"])
+df_all_prices_filled["année-mois"] = df_all_prices_filled["date"].dt.to_period("M")
 
 # ===============================
 # Inclure la variable Indice CNR (gazole professionnel)
@@ -518,6 +526,13 @@ df_all_prices_filled = (
 )
 
 
-# display(df_all_prices_filled)
+display(df_all_prices_filled)
 
 df_all_prices_filled.to_pickle("../data/processed/processed_data_GNR_07_10.pkl")
+
+df_fioulreduc = (
+    df_all_prices_filled[df_all_prices_filled["site"] == "Fioulreduc"]
+    .drop("site", axis=1)
+    .reset_index(drop=True)
+)
+df_fioulreduc.to_pickle("../data/processed/processed_data_Fioulreduc_GNR_07_10.pkl")

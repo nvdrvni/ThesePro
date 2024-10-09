@@ -69,7 +69,7 @@ ax.axis("off")
 
 plt.tight_layout()
 plt.savefig(
-    "../report/figures/disparité_prix_moyen_par_région_FOD.png",
+    "../report/figures/cartes choroplèthes/disparité_prix_moyen_par_région_FOD.png",
     dpi=300,
     bbox_inches="tight",
 )

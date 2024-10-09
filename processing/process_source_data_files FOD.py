@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from glob import glob
 
+pd.set_option("display.max_columns", None)
+
 
 def read_process_pv_df():
     df_pv = pd.read_pickle("../data/source/data_pv_fod.pkl")[

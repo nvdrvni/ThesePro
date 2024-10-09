@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.feature_selection import mutual_info_regression
 
-df = pd.read_pickle("../data/processed/processed_data_FOD.pkl")
+df = pd.read_pickle("../data/processed/processed_data_FOD_07_10.pkl")
 X = df.drop("prix", axis=1)
 y = df.prix
 # Label Encoding of Categorical Data (Missing Values will be encoded as -1)
@@ -27,5 +27,5 @@ width = np.arange(len(mi_scores))
 ticks = scores.index
 plt.barh(width, scores)
 plt.yticks(width, ticks)
-plt.savefig("../report/mutual info/most_important_features_FOD.png")
+plt.savefig("../report/mutual info/most_important_features_FOD_07_10.png")
 plt.show()
